@@ -1,0 +1,55 @@
+{
+  "name": "meow-push-skill",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Agent skill and zero-dependency TypeScript CLI for pushing text or HTML messages to MeoW nicknames (api.chuckfang.com)",
+  "keywords": [
+    "agent-skill",
+    "skill",
+    "meow",
+    "push-notification",
+    "cli",
+    "typescript"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NIRVANA-APOC/meow-push-skill.git"
+  },
+  "homepage": "https://github.com/NIRVANA-APOC/meow-push-skill#readme",
+  "bugs": {
+    "url": "https://github.com/NIRVANA-APOC/meow-push-skill/issues"
+  },
+  "bin": {
+    "meow-push": "scripts/meow-push.mjs"
+  },
+  "files": [
+    "SKILL.md",
+    "README.md",
+    "README.zh-CN.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "src",
+    "dist",
+    "scripts",
+    "references"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "check:dist-sync": "node scripts/check-dist-sync.mjs",
+    "test": "node scripts/test.mjs",
+    "scan:secrets": "node scripts/scan-secrets.mjs",
+    "verify": "npm run typecheck && npm run build && npm run check:dist-sync && npm test && npm run scan:secrets",
+    "mock": "node scripts/mock-server.mjs",
+    "meow-push": "node scripts/meow-push.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,12 @@
+# Build output: committed on purpose.
+#
+# The skill must run with a bare `node` and no install step, so the compiled
+# CLI ships in the repository. `npm run check:dist-sync` (and CI) verifies that
+# dist/ is exactly the build of src/, so this cannot silently go stale.
+!dist/
+
+node_modules/
+*.tsbuildinfo
+
+# Local scratch
+.tmp/

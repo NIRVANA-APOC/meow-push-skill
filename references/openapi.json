@@ -1,0 +1,428 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MeoW 消息推送 API",
+    "version": "1.0.0",
+    "description": "通过简单的 HTTP 调用，向指定用户推送文本或 HTML 消息。无需 SDK，一个 URL 即可完成集成。所有中文参数需进行 URL 编码。尽量不要通过多人共享的公共出口 IP 请求推送接口；同一 IP 向多个昵称发送推送可能被 MeoW 判定为攻击行为。可信 IP 可联系开发者申请加入白名单。"
+  },
+  "servers": [
+    {
+      "url": "https://api.chuckfang.com",
+      "description": "HTTPS（推荐）"
+    },
+    {
+      "url": "http://api.chuckfang.com",
+      "description": "HTTP"
+    }
+  ],
+  "x-meow-skill": {
+    "name": "meow-push",
+    "description": "面向大模型和 Codex 的 MeoW 消息推送 Skill",
+    "url": "https://github.com/fkccoding/meow-push-skill"
+  },
+  "paths": {
+    "/{nickname}/{title}/{msg}": {
+      "get": {
+        "summary": "推送消息（含标题）",
+        "description": "通过 GET 推送消息，路径中包含昵称、标题与消息内容。",
+        "parameters": [
+          {
+            "name": "nickname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "用户昵称（不允许包含斜杠）"
+          },
+          {
+            "name": "title",
+            "in": "path",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "default": "MeoW"
+            },
+            "description": "消息标题，省略时默认使用 MeoW"
+          },
+          {
+            "name": "msg",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "消息内容"
+          },
+          {
+            "name": "url",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "跳转链接（需 URL 编码）"
+          },
+          {
+            "name": "imgUrl",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "通知图标 URL，建议格式 216×216、PNG（需 URL 编码）"
+          },
+          {
+            "name": "msgType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text",
+                "html"
+              ],
+              "default": "text"
+            },
+            "description": "消息显示类型：text 纯文本（默认），html 在 App 中渲染 HTML"
+          },
+          {
+            "name": "htmlHeight",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 200
+            },
+            "description": "仅在 msgType=html 时生效，HTML 内容显示高度（像素）"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PushResult"
+          }
+        }
+      }
+    },
+    "/{nickname}/{msg}": {
+      "get": {
+        "summary": "推送消息（省略标题）",
+        "description": "通过 GET 推送消息，省略标题，标题默认使用 MeoW。",
+        "parameters": [
+          {
+            "name": "nickname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "用户昵称（不允许包含斜杠）"
+          },
+          {
+            "name": "msg",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "消息内容"
+          },
+          {
+            "name": "url",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "跳转链接（需 URL 编码）"
+          },
+          {
+            "name": "imgUrl",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "通知图标 URL，建议格式 216×216、PNG（需 URL 编码）"
+          },
+          {
+            "name": "msgType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text",
+                "html"
+              ],
+              "default": "text"
+            },
+            "description": "消息显示类型：text 纯文本（默认），html 渲染 HTML"
+          },
+          {
+            "name": "htmlHeight",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 200
+            },
+            "description": "仅在 msgType=html 时生效，显示高度（像素）"
+          }
+        ],
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PushResult"
+          }
+        }
+      }
+    },
+    "/{nickname}/{title}": {
+      "post": {
+        "summary": "推送消息",
+        "description": "通过 POST 推送消息。路径中的 title 可选；同时存在路径 title 与 Body title 时，优先使用 Body 中的字段。msgType 与 htmlHeight 始终作为查询参数传递，不属于 JSON Body 字段。",
+        "parameters": [
+          {
+            "name": "nickname",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            },
+            "description": "用户昵称（不允许包含斜杠）"
+          },
+          {
+            "name": "title",
+            "in": "path",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "消息标题（可选）"
+          },
+          {
+            "name": "url",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string"
+            },
+            "description": "跳转链接（查询或 Body 均可）"
+          },
+          {
+            "name": "imgUrl",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "通知图标 URL，建议格式 216×216、PNG。查询参数或 JSON Body 均可，Body 中的 imgUrl 优先"
+          },
+          {
+            "name": "msgType",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "enum": [
+                "text",
+                "html"
+              ],
+              "default": "text"
+            },
+            "description": "消息显示类型：text 纯文本（默认），html 渲染 HTML"
+          },
+          {
+            "name": "htmlHeight",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 200
+            },
+            "description": "仅在 msgType=html 时生效，显示高度（像素）"
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "msg"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string",
+                    "description": "标题，优先级高于路径 title，默认 MeoW"
+                  },
+                  "msg": {
+                    "type": "string",
+                    "description": "消息内容（必填）"
+                  },
+                  "url": {
+                    "type": "string",
+                    "description": "跳转链接"
+                  },
+                  "imgUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "通知图标 URL，建议格式 216×216、PNG。优先级高于同名查询参数"
+                  }
+                }
+              }
+            },
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "msg"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "msg": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "imgUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "通知图标 URL，建议 216×216、PNG"
+                  }
+                }
+              }
+            },
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "required": [
+                  "title",
+                  "msg"
+                ],
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "msg": {
+                    "type": "string"
+                  },
+                  "url": {
+                    "type": "string"
+                  },
+                  "imgUrl": {
+                    "type": "string",
+                    "format": "uri",
+                    "description": "通知图标 URL，建议 216×216、PNG"
+                  }
+                }
+              }
+            },
+            "text/plain": {
+              "schema": {
+                "type": "string",
+                "description": "请求体即为纯文本消息内容"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/PushResult"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "responses": {
+      "PushResult": {
+        "description": "推送结果",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "object",
+              "properties": {
+                "status": {
+                  "type": "integer",
+                  "enum": [
+                    200,
+                    400,
+                    403,
+                    404,
+                    429,
+                    500
+                  ],
+                  "description": "JSON 业务状态码：200 成功，400 参数错误，403 内容策略禁止，404 昵称未注册，429 发送或 IP 频率超限，500 服务器错误",
+                  "examples": [
+                    200,
+                    400,
+                    403,
+                    404,
+                    429,
+                    500
+                  ]
+                },
+                "msg": {
+                  "type": "string",
+                  "description": "结果描述"
+                }
+              }
+            },
+            "examples": {
+              "success": {
+                "value": {
+                  "status": 200,
+                  "data": true,
+                  "msg": "发送成功"
+                }
+              },
+              "badRequest": {
+                "value": {
+                  "status": 400,
+                  "data": false,
+                  "msg": "发送失败，标题不能为空"
+                }
+              },
+              "forbidden": {
+                "value": {
+                  "status": 403,
+                  "data": false,
+                  "msg": "敏感词，禁止发送"
+                }
+              },
+              "notFound": {
+                "value": {
+                  "status": 404,
+                  "data": false,
+                  "msg": "发送失败，该昵称没有注册"
+                }
+              },
+              "tooManyRequests": {
+                "value": {
+                  "status": 429,
+                  "data": false,
+                  "msg": "非会员用户每分钟只能发送15条消息"
+                }
+              },
+              "serverError": {
+                "value": {
+                  "status": 500,
+                  "msg": "服务器内部错误"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
